@@ -1,0 +1,43 @@
+from flask import Blueprint, jsonify, request
+
+from app.store import TodoStore
+
+bp = Blueprint("todos", __name__)
+store = TodoStore()
+
+
+@bp.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+@bp.get("/todos")
+def list_todos():
+    return jsonify(store.list())
+
+
+@bp.post("/todos")
+def create_todo():
+    body = request.get_json(force=True)
+    title = (body.get("title") or "").strip()
+    if not title:
+        return {"error": "title is required"}, 400
+    return store.add(title), 201
+
+
+@bp.get("/todos/<int:todo_id>")
+def get_todo(todo_id):
+    return store.get(todo_id)
+
+
+@bp.patch("/todos/<int:todo_id>")
+def update_todo(todo_id):
+    body = request.get_json(force=True)
+    fields = {k: body[k] for k in ("title", "done") if k in body}
+    return store.update(todo_id, **fields)
+
+
+@bp.delete("/todos/<int:todo_id>")
+def delete_todo(todo_id):
+    store.delete(todo_id)
+    return "", 204

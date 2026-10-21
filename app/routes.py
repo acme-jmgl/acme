@@ -29,7 +29,7 @@ def create_todo():
     title = (body.get("title") or "").strip()
     if not title:
         return {"error": "title is required"}, 400
-    return store.add(title), 201
+    return store.add(title, due=body.get("due")), 201
 
 
 @bp.get("/todos/<int:todo_id>")

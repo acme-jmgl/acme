@@ -5,7 +5,7 @@ def test_health(client):
 def test_create_and_list(client):
     resp = client.post("/todos", json={"title": "buy milk"})
     assert resp.status_code == 201
-    assert client.get("/todos").json == [{"id": 1, "title": "buy milk", "done": False}]
+    assert client.get("/todos").json == [{"id": 1, "title": "buy milk", "done": False, "due": None}]
 
 
 def test_title_required(client):
@@ -27,3 +27,8 @@ def test_missing_todo_is_404(client):
     assert client.get("/todos/99").status_code == 404
     assert client.patch("/todos/99", json={"done": True}).status_code == 404
     assert client.delete("/todos/99").status_code == 404
+
+
+def test_due_date(client):
+    resp = client.post("/todos", json={"title": "file taxes", "due": "2027-04-15"})
+    assert resp.json["due"] == "2027-04-15"

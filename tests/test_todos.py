@@ -5,7 +5,7 @@ def test_health(client):
 def test_create_and_list(client):
     resp = client.post("/todos", json={"title": "buy milk"})
     assert resp.status_code == 201
-    assert client.get("/todos").json == [{"id": 1, "title": "buy milk", "done": False, "due": None}]
+    assert client.get("/todos").json == [{"id": 1, "title": "buy milk", "done": False, "due": None, "tags": []}]
 
 
 def test_title_required(client):

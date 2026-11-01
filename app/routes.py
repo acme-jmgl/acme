@@ -41,7 +41,7 @@ def get_todo(todo_id):
 def update_todo(todo_id):
     _get_or_404(todo_id)
     body = request.get_json(force=True)
-    fields = {k: body[k] for k in ("title", "done") if k in body}
+    fields = {k: body[k] for k in ("title", "done", "tags") if k in body}
     return store.update(todo_id, **fields)
 
 

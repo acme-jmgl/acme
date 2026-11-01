@@ -15,7 +15,7 @@ class TodoStore:
         return self._todos.get(todo_id)
 
     def add(self, title, due=None):
-        todo = {"id": next(self._ids), "title": title, "done": False, "due": due}
+        todo = {"id": next(self._ids), "title": title, "done": False, "due": due, "tags": []}
         self._todos[todo["id"]] = todo
         return todo
 

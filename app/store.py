@@ -26,3 +26,7 @@ class TodoStore:
 
     def delete(self, todo_id):
         return self._todos.pop(todo_id, None)
+
+    def search(self, text):
+        text = text.lower()
+        return [t for t in self._todos.values() if text in t["title"].lower()]

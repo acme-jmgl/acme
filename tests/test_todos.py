@@ -32,3 +32,8 @@ def test_missing_todo_is_404(client):
 def test_due_date(client):
     resp = client.post("/todos", json={"title": "file taxes", "due": "2027-04-15"})
     assert resp.json["due"] == "2027-04-15"
+
+
+def test_tags(client):
+    client.post("/todos", json={"title": "groceries"})
+    assert client.patch("/todos/1", json={"tags": ["home"]}).json["tags"] == ["home"]

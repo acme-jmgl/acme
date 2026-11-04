@@ -50,3 +50,9 @@ def delete_todo(todo_id):
     _get_or_404(todo_id)
     store.delete(todo_id)
     return "", 204
+
+
+@bp.get("/todos.csv")
+def export_csv():
+    lines = ["id,title,done"] + [f'{t["id"]},{t["title"]},{t["done"]}' for t in store.list()]
+    return "\n".join(lines), 200, {"Content-Type": "text/csv"}

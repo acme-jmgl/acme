@@ -32,3 +32,10 @@ def test_missing_todo_is_404(client):
 def test_due_date(client):
     resp = client.post("/todos", json={"title": "file taxes", "due": "2027-04-15"})
     assert resp.json["due"] == "2027-04-15"
+
+
+def test_pagination(client):
+    for i in range(5):
+        client.post("/todos", json={"title": f"t{i}"})
+    page = client.get("/todos?limit=2&offset=2").json
+    assert [t["title"] for t in page] == ["t2", "t3"]

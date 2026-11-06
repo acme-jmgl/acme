@@ -20,7 +20,9 @@ def health():
 
 @bp.get("/todos")
 def list_todos():
-    return jsonify(store.list())
+    limit = request.args.get("limit", 50, type=int)
+    offset = request.args.get("offset", 0, type=int)
+    return jsonify(store.list()[offset : offset + limit])
 
 
 @bp.post("/todos")

@@ -21,3 +21,9 @@ def test_delete(client):
     client.post("/todos", json={"title": "temp"})
     assert client.delete("/todos/1").status_code == 204
     assert client.get("/todos").json == []
+
+
+def test_missing_todo_is_404(client):
+    assert client.get("/todos/99").status_code == 404
+    assert client.patch("/todos/99", json={"done": True}).status_code == 404
+    assert client.delete("/todos/99").status_code == 404

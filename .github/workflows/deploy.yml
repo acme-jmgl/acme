@@ -1,0 +1,33 @@
+name: Deploy
+
+# Pretend deploy. Nothing is shipped anywhere: each step only echoes.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      simulate_failure:
+        description: "Fail the deploy step (to produce a failed run)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: echo "Building acme at ${GITHUB_SHA::7}"
+      - name: Deploy
+        run: |
+          if [ "${{ inputs.simulate_failure }}" = "true" ]; then
+            echo "Simulated deploy failure"; exit 1
+          fi
+          echo "Deployed ${GITHUB_SHA::7} to production (not really)"
+      - name: Smoke test
+        run: echo "GET /health -> ok"

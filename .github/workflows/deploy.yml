@@ -1,33 +1,47 @@
 name: Deploy
 
-# Pretend deploy. Nothing is shipped anywhere: each step only echoes.
+# Publishing a GitHub Release deploys that release's tag to a mock destination.
+# Nothing is shipped anywhere: each step only echoes.
+# A prerelease goes to staging; a full release goes to production.
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
+      ref:
+        description: "Tag or SHA to deploy"
+        required: true
       simulate_failure:
         description: "Fail the deploy step (to produce a failed run)"
         type: boolean
         default: false
 
 concurrency:
-  group: deploy-production
+  group: deploy-${{ github.event.release.prerelease && 'staging' || 'production' }}
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ github.event.release.prerelease && 'staging' || 'production' }}
+    env:
+      REF: ${{ github.event.release.tag_name || inputs.ref }}
+      TARGET: ${{ github.event.release.prerelease && 'staging' || 'production' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.REF }}
       - name: Build
-        run: echo "Building acme at ${GITHUB_SHA::7}"
+        run: echo "Building acme $REF ($(git rev-parse --short HEAD))"
       - name: Deploy
         run: |
           if [ "${{ inputs.simulate_failure }}" = "true" ]; then
             echo "Simulated deploy failure"; exit 1
           fi
-          echo "Deployed ${GITHUB_SHA::7} to production (not really)"
+          echo "Deployed $REF ($(git rev-parse HEAD)) to mock://acme-$TARGET"
       - name: Smoke test
         run: echo "GET /health -> ok"
+      - name: Summary
+        run: |
+          echo "### Deployed \`$REF\` to \`$TARGET\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "SHA: \`$(git rev-parse HEAD)\` - destination: \`mock://acme-$TARGET\`" >> "$GITHUB_STEP_SUMMARY"
